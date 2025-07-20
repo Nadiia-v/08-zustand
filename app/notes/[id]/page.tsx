@@ -7,6 +7,7 @@ import { fetchNoteById } from "@/lib/api";
 import NoteDetailsClient from "./NoteDetails.client";
 import { Note } from "@/types/note";
 import { getSingleNote } from "@/lib/api";
+import type { Metadata } from "next";
 
 interface PageParams {
   params: Promise<{ id: string }>;
@@ -16,7 +17,7 @@ type Props = {
   params: Promise<{ id: string }>;
 };
 
-export async function generateMetadata({ params }: Props) {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   const note = await getSingleNote(id);
 

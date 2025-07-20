@@ -1,17 +1,44 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createNote } from "@/lib/api";
 import { toast } from "react-hot-toast";
 import css from "./NoteForm.module.css";
 import { Tag } from "@/types/note";
 import { useNoteDraftStore } from "@/lib/store/noteStore";
-import { useEffect } from "react";
 
 export default function NoteForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
   const router = useRouter();
+
+  const { draft, setDraft, clearDraft } = useNoteDraftStore();
+  const [title, setTitle] = useState(draft.title);
+  const [content, setContent] = useState(draft.content);
+  const [tag, setTag] = useState<Tag>(draft.tag as Tag);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setDraft({ title, content, tag });
+  }, [title, content, tag, setDraft]);
+
+  const mutation = useMutation({
+    mutationFn: createNote,
+    onMutate: () => setIsSubmitting(true),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notes"] });
+      clearDraft();
+      toast.success("Note created successfully");
+      router.push("/notes");
+    },
+    onError: () => {
+      toast.error("Failed to create note");
+    },
+    onSettled: () => {
+      setIsSubmitting(false);
+    },
+  });
 
   const handleSubmit = async (formData: FormData) => {
     const title = formData.get("title")?.toString().trim();
@@ -23,24 +50,8 @@ export default function NoteForm() {
       return;
     }
 
-    try {
-      setIsSubmitting(true);
-      await createNote({ title, content, tag });
-      clearDraft();
-      toast.success("Note created successfully");
-      router.push("/notes");
-    } finally {
-      setIsSubmitting(false);
-    }
+    mutation.mutate({ title, content, tag });
   };
-  const { draft, setDraft, clearDraft } = useNoteDraftStore();
-  const [title, setTitle] = useState(draft.title);
-  const [content, setContent] = useState(draft.content);
-  const [tag, setTag] = useState<Tag>(draft.tag as Tag);
-
-  useEffect(() => {
-    setDraft({ title, content, tag });
-  }, [title, content, tag, setDraft]);
 
   return (
     <form action={handleSubmit} className={css.form}>
@@ -88,13 +99,23 @@ export default function NoteForm() {
         </select>
       </div>
 
-      <button
-        type="submit"
-        className={css.submitButton}
-        disabled={isSubmitting}
-      >
-        {isSubmitting ? "Creating..." : "Create note"}
-      </button>
+      <div className={css.buttonGroup}>
+        <button
+          type="submit"
+          className={css.submitButton}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Creating..." : "Create note"}
+        </button>
+
+        <button
+          type="button"
+          className={css.cancelButton}
+          onClick={() => router.push("/notes")}
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 }

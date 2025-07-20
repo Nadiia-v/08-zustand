@@ -8,7 +8,6 @@ import SearchBox from "@/components/SearchBox/SearchBox";
 import NoteList from "@/components/NoteList/NoteList";
 import Pagination from "@/components/Pagination/Pagination";
 import css from "./Page.module.css";
-import NoteForm from "@/components/NoteForm/NoteForm";
 import React from "react";
 import Link from "next/link";
 
@@ -69,8 +68,6 @@ export default function NotesClient({ initialData, tag }: Props) {
       ) : (
         <p>No notes found</p>
       )}
-
-      <NoteForm />
     </div>
   );
 }
