@@ -65,6 +65,7 @@ export default function NoteForm() {
           required
           minLength={3}
           maxLength={50}
+          value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
       </div>
@@ -77,6 +78,7 @@ export default function NoteForm() {
           className={css.textarea}
           required
           maxLength={500}
+          value={content}
           onChange={(e) => setContent(e.target.value)}
         />
       </div>
@@ -88,7 +90,7 @@ export default function NoteForm() {
           name="tag"
           className={css.select}
           required
-          defaultValue="Todo"
+          value={tag}
           onChange={(e) => setTag(e.target.value as Tag)}
         >
           <option value="Todo">Todo</option>
