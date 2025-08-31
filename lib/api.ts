@@ -24,7 +24,7 @@ export const fetchNotes = (params: {
   if (!cleanParams.search) {
     delete cleanParams.search;
   }
-  if (cleanParams.tag === "All") {
+  if (!cleanParams.tag) {
     delete cleanParams.tag;
   }
 

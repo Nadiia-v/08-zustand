@@ -26,7 +26,7 @@ export async function generateMetadata({
         tag === "All"
           ? "Browse all your saved notes."
           : `Notes tagged with "${tag}"`,
-      url: `https://yourdomain.com/notes/filter/${tag}`,
+      url: `https://07-routing-nextjs-rust.vercel.app/notes/filter/${tag}`,
       siteName: "NoteHub",
       images: [
         {
@@ -42,8 +42,9 @@ export async function generateMetadata({
 
 export default async function FilteredNotesPage({ params }: PageProps) {
   const resolvedParams = await params;
-  const tag = resolvedParams.slug?.[0] || "All";
+  const tags = resolvedParams.slug?.[0] ?? "All";
+  const tag = tags === "All" ? undefined : tags;
   const initialData = await fetchNotes({ tag, page: 1 });
 
-  return <NotesClient initialData={initialData} tag={tag} />;
+  return <NotesClient initialData={initialData} tag={tags} />;
 }
